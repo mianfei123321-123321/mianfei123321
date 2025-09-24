@@ -1,0 +1,26 @@
+# idea使用步骤:
+# 1.需要安装EditorConfig插件(默认已安装)
+# 2.File | Settings | Editor | Code Style确保.editorconfig优先级最高,默认即如此
+root = true
+
+[*]
+indent_style = space
+tab_width = 4
+end_of_line = lf
+charset = utf-8
+# 自动去除行尾的多余空格
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.java]
+# 缩进4个空格
+indent_size = 4
+max_line_length = 120
+
+# 针对特定文件类型的特殊配置
+[*.{json,yml,yaml,xml}]
+# 将缩进空格数设置为2
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

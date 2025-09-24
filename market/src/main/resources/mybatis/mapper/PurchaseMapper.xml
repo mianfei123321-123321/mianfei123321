@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.roadjava.market.mapper.PurchaseMapper">
+  <resultMap id="purchaseVOMap" type="PurchaseVO" autoMapping="true">
+    <id property="id" column="id"/>
+    <collection property="detailList" resultMap="purchaseDetailVOMap"
+                ofType="PurchaseDetailVO"/>
+  </resultMap>
+
+  <resultMap id="purchaseDetailVOMap" type="PurchaseDetailVO" autoMapping="true">
+    <id property="id" column="detailId"/>
+  </resultMap>
+
+  <sql id="columnComm">
+    select
+    a.*,
+    b.username operatorName,
+    <!--1对多的字段-->
+    c.id detailId,
+    c.purchase_id,
+    c.goods_id,
+    c.buy_price,
+    c.num,
+    c.supplier_id,
+    d.name as goodsName,
+    d.unit,
+    d.sale_price,
+    e.name as supplierName
+  </sql>
+  <sql id="additionalTable">
+    left join manager b on a.operator_id = b.id
+    <!--1对多的表-->
+    left join purchase_detail c on a.id = c.purchase_id
+    left join goods d on c.goods_id = d.id
+    left join supplier e on c.supplier_id = e.id
+  </sql>
+
+  <sql id="pageWhere">
+    <where>
+      <if test='purchaseNo != null and purchaseNo !=""'>
+        a.purchase_no like concat('%',#{purchaseNo},'%')
+      </if>
+      <if test='status != null'>
+        and a.status=#{status}
+      </if>
+    </where>
+  </sql>
+
+  <select id="queryList" resultMap="purchaseVOMap">
+    <include refid="columnComm"/>
+    from (
+      select a.* from purchase a
+      <include refid="pageWhere"></include>
+      order by a.id desc
+      limit #{start},#{pageSize}
+    ) a
+    <include refid="additionalTable"/>
+  </select>
+
+<!--  只需要对主表进行条数统计即可-->
+  <select id="queryCount" resultType="long">
+    select count(*) from purchase a
+    <include refid="pageWhere"></include>
+  </select>
+
+  <select id="selectWithDetail" resultMap="purchaseVOMap">
+    <include refid="columnComm"/>
+    from (
+      select a.* from purchase a
+      where a.id = #{purchaseId}
+    ) a
+    <include refid="additionalTable"/>
+  </select>
+</mapper>

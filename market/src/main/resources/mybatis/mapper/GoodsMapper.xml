@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.roadjava.market.mapper.GoodsMapper">
+  <sql id="columnComm">
+    select
+    a.*,
+    b.shelf_no
+  </sql>
+  <sql id="additionalTable">
+    left join shelf b on a.shelf_id = b.id
+  </sql>
+
+  <sql id="pageWhere">
+    <where>
+      <if test='name != null and name !=""'>
+        a.name like concat('%',#{name},'%')
+      </if>
+    </where>
+  </sql>
+
+  <select id="queryList" resultType="goodsVO">
+    <include refid="columnComm"/>
+    from (
+      select a.* from goods a
+      <include refid="pageWhere"></include>
+      order by a.id desc
+      limit #{start},#{pageSize}
+    ) a
+    <include refid="additionalTable"/>
+  </select>
+
+  <select id="queryCount" resultType="long">
+    select count(*) from goods a
+    <include refid="pageWhere"></include>
+  </select>
+
+  <select id="selectWithDetail" resultType="goodsVO">
+    <include refid="columnComm"/>
+    from (
+      select a.* from goods a
+      where a.id = #{id}
+    ) a
+    <include refid="additionalTable"/>
+  </select>
+</mapper>
